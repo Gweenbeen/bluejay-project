@@ -20,4 +20,4 @@ os.mkdir(bin_path)
 
 os.system("make all")
 
-os.system("start cmd /k bin\\bjcc.exe")
+os.system("start cmd /k bin\\bjcc.exe content/test1.bj content/test2.bj")

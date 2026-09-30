@@ -1,0 +1,25 @@
+module Array;
+
+import std;
+
+class Array<T>
+{
+private:
+	T* ptr;
+	uint length;
+	uint capacity;
+
+public:	
+	construct Array()
+	{
+		ptr = create(sizeof(T) * capacity);
+	}
+
+	destruct Array()
+	{
+		delete(ptr);
+	}
+
+	void push(T* item);
+	T* pop();
+}

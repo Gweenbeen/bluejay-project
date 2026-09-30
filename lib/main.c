@@ -1,16 +1,30 @@
-// main.c
+// Copyright (c) 2026 Justin Wallace
+// main.c - Main
 
-#include "array.h"
-#include <stdio.h>
+#include "driver/compiler.h"
 
-#ifndef ENABLE_DEBUG
-#define ENABLE_DEBUG
-#endif
+#include "string_table.h"
+/*
 
+local state
+	source text
+	tokens 
+	ast
+	scope
+	symbol table
+local pass
+	load source file
+	tokenization
+	parsing
+	semantic analysis
+global state
+	build options
+	type context
 
+*/
 int main(int argc, const char* argv[])
 {
-	printf("Heyyyy world\n");
+	printf("%zu\n\n", sizeof(StringTableEntry));
 
-	return 0;
+	return compiler_run(argc, argv);
 }

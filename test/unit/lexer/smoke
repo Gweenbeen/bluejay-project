@@ -1,0 +1,68 @@
+// next_keyword :: Tokenizes all characters in SourceFile
+extern void lexer_tokenize(Lexer* lexer, SourceFile* source_file, TokenStream* token_stream)
+{
+	lexer->source_file = source_file;
+	lexer->tokens = token_stream;
+
+	source_cursor_init(&lexer->cursor, lexer->source_file);
+	
+	for(;;) {
+		Token t = next_token(lexer);
+
+		token_stream_push_back(lexer->tokens, &t);
+
+		if(t.kind == TOKEN_EOF) {
+			break;
+		}
+	}
+
+	for(size_t i = 0; i < lexer->tokens->length; i++) {
+		Token* t = token_stream_at(lexer->tokens, i);
+		printf("token %02d: %.*s \n", t->kind, (int)t->source.length, t->source.ptr);
+	}
+
+	// array_for_each(Token*, t, lexer->tokens) {
+	// 	// printf("token: %.*s %d\n", t->source.length, t->source.ptr, t->kind);
+	// }
+}
+
+
+// skip_whitespace :: Advances cursor until non-whitespace character is reached
+INLINE void skip_whitespace(Lexer* lexer)
+{
+	while(isspace(source_cursor_current(&lexer->cursor)) || source_cursor_is(&lexer->cursor, '\t')) {
+		source_cursor_advance(&lexer->cursor);
+	}
+}
+
+INLINE Token make_token(Lexer* lexer, TokenKind kind, size_t start)
+{
+	Token tok = {0};
+	tok.kind = kind;
+	tok.source.ptr = source_cursor_string_at(&lexer->cursor, start);
+	tok.source.length = lexer->cursor.current - start;
+
+	return tok;
+}
+
+// next_keyword :: Returns the next token
+INLINE Token next_token(Lexer* lexer)
+{
+	skip_whitespace(lexer);
+
+	Token tok = {0};
+	tok.kind = TOKEN_IDENTIFIER;
+
+	size_t start = lexer->cursor.current;
+
+	source_cursor_advance(&lexer->cursor);
+
+	if(source_cursor_is(&lexer->cursor, '\0')) {
+		tok.kind = TOKEN_EOF;
+	}
+
+	tok.source.ptr = source_cursor_string_at(&lexer->cursor, start);
+	tok.source.length = lexer->cursor.current - start;
+
+	return tok;
+}
