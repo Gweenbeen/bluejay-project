@@ -11,9 +11,9 @@ CFLAGS := \
 
 LIB := \
 	lib/main.c \
-	lib/driver/compiler.c \
-	lib/source/source_file.c \
-	lib/lexer/lexer.c 
+# 	lib/driver/compiler.c \
+# 	lib/source/source_file.c \
+# 	lib/lexer/lexer.c 
 	
 
 BUILD := \

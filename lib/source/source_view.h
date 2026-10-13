@@ -1,26 +1,16 @@
-// source_file.h
+// source_view - Non-owning view into contents of source
 
 #pragma once
 
-#include "common.h"
-#include <stddef.h>
+struct SourceFile;
 
-typedef struct SourceFile SourceFile;
-
-// SourceView :: Metadata taken from a SourceFile
-typedef struct SourceView
+struct SourceView
 {
-	SourceFile* source_file;
+	struct SourceFile *source;
 
-	size_t start;
-	size_t length;
 	size_t line_start;
 	size_t line_length;
 
-	size_t line;
-	size_t column;
-} SourceView;
-
-#define NO_SOURCE_VIEW (SourceView){0}
-
-INLINE SourceView source_view_from_source(SourceFile* source_file) { return (SourceView){0}; }
+	size_t column_start;
+	size_t column_length;
+};

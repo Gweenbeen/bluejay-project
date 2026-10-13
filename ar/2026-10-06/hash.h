@@ -19,9 +19,9 @@ INLINE uint64_t hash_fnv1a_impl(const uint8_t* restrict ptr, size_t length, uint
 	return (hash) ? hash : 1;
 }
 
-INLINE uint64_t hash_fnv1a_from_string_view(StringView* string_view)
+INLINE uint64_t hash_fnv1a_from_string_view(struct StringView* self)
 {
-	return hash_fnv1a_impl(string_view->ptr, string_view->length, 0, 0);
+	return hash_fnv1a_impl(self->ptr, self->length, 0, 0);
 }
 
 INLINE uint64_t hash_fnv1a_from_cstring(const char* string, size_t length)

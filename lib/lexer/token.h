@@ -4,40 +4,25 @@
 
 #include "common.h"
 #include "array.h"
+#include "source/source_view.h"
 
-typedef enum TokenKind
-{	
-
-#define TOKEN(x, y) y,
-#include "token_kinds.def"
-#undef TOKEN
-
-} TokenKind;
-
-// Token :: Lexical token
-typedef struct Token
+// TokenKind :: What kind of Token
+enum TokenKind
 {
-	TokenKind kind;
-	StringView source;
-} Token;
+	TOKEN_EOF
+};
 
-// TokenStream :: Array of tokens to be parsed
-typedef struct TokenStream
+// Token :: Lexical token for parsing
+struct Token
 {
-	DEFINE_ARRAY_STRUCT_IMPL(Token);
+	enum TokenKind kind;
+	struct SourceView source;
+};
 
-	struct
-	{
-		size_t current;
-		size_t last;
-	} Cursor;
-} TokenStream;
+// TokenStream :: Array of Token
+struct TokenStream
+{
+	DEFINE_ARRAY_HEADER(struct Token);
+};
 
-DEFINE_ARRAY_API_IMPL(Token, TokenStream, token_stream);
-
-INLINE Token* token_stream_current(TokenStream* token_stream) { return token_stream_at(token_stream, token_stream->Cursor.current); }
-INLINE Token* token_stream_peek(TokenStream* token_stream) { return token_stream_at(token_stream, token_stream->Cursor.current + 1); }
-INLINE void token_stream_advance(TokenStream* token_stream) { token_stream->Cursor.current++; };
-INLINE bool token_stream_is_out_of_bounds(TokenStream* token_stream) { return token_stream->Cursor.current >= token_stream->length; };
-INLINE bool token_stream_expect(TokenStream* token_stream, Token* expect) { return token_stream_at(token_stream, token_stream->Cursor.current) == expect; };
-INLINE bool token_stream_is(TokenStream* token_stream, TokenKind kind) { return token_stream_at(token_stream, token_stream->Cursor.current)->kind == kind; };
+DEFINE_ARRAY_IMPL(struct TokenStream, token_stream, struct Token);

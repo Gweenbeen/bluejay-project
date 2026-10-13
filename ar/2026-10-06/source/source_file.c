@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 // source_file_read :: Reads file contents into SourceFile
-extern void source_file_read(SourceFile* source_file, const char* path)
+extern void source_file_read(struct SourceFile* self, const char* path)
 {
 	FILE* f = fopen(path, "rb");
 
@@ -21,18 +21,18 @@ extern void source_file_read(SourceFile* source_file, const char* path)
 
 	src[len] = '\0';
 
-	source_file->contents = string_view_from_cstring(src, len);
-	source_file->path = path;
-	source_file->id = hash_fnv1a_from_cstring(path, strlen(path));
+	self->contents = string_view_from_cstring_l(src, len);
+	self->path = path;
+	self->id = hash_fnv1a_from_cstring(path, strlen(path));
 }
 
 // source_file_read :: Releases SourceFile
-extern void source_file_free(SourceFile* source_file)
+extern void source_file_free(struct SourceFile* self)
 {
-	if(source_file->contents.ptr != NULL) {
-		free((void*)source_file->contents.ptr);
+	if(self->contents.ptr != NULL) {
+		free((void*)self->contents.ptr);
 	}
 
-	source_file->contents.ptr = NULL;
-	source_file->contents.length = 0;
+	self->contents.ptr = NULL;
+	self->contents.length = 0;
 }

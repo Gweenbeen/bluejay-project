@@ -7,7 +7,7 @@
 
 extern int compiler_run(int argc, const char* argv[])
 {
-	CompilerContext compiler = {0};
+	struct CompilerContext compiler = {0};
 	
 	compiler_main(&compiler, argc, argv);
 	compiler_cleanup(&compiler);
@@ -16,7 +16,7 @@ extern int compiler_run(int argc, const char* argv[])
 }
 
 // compiler_main :: Canonical entry point for compiler
-extern void compiler_main(CompilerContext* compiler_context, int argc, const char* argv[])
+extern void compiler_main(struct CompilerContext* compiler_context, int argc, const char* argv[])
 {
 	compiler_context->argc = argc;
 	compiler_context->argv = argv;
@@ -25,7 +25,7 @@ extern void compiler_main(CompilerContext* compiler_context, int argc, const cha
 
 	// Tokenize and parse
 	for(size_t i = 1; i < argc; i++) {
-		SourceFile source_file = {0};
+		struct SourceFile source_file = {0};
 		Lexer lexer = {0};
 		
 		TokenStream tokens = {0};
@@ -37,10 +37,12 @@ extern void compiler_main(CompilerContext* compiler_context, int argc, const cha
 		source_file_free(&source_file);
 		token_stream_free(&tokens);
 	}
+
+
 }
 
 // compiler_cleanup :: Release of all compiler resources
-extern void compiler_cleanup(CompilerContext* compiler_context)
+extern void compiler_cleanup(struct CompilerContext* compiler_context)
 {
 	//
 }

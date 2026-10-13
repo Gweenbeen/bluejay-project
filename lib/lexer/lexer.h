@@ -1,18 +1,15 @@
-// Copyright (c) 2026 Justin Wallace
-// lexer.h - Lexical pass
+// lexer.h - Lexical analyzer
 
 #pragma once
 
 #include "token.h"
-#include "source/source_cursor.h"
 
-// Lexer :: Manages lexical state
-typedef struct Lexer
+// Lexer :: Lexical analysis
+struct Lexer
 {
-	SourceFile* source_file;
-	SourceCursor cursor;
+	struct TokenStream tokens;
 
-	TokenStream* tokens;
-} Lexer;
+	size_t current;
+};
 
-extern void lexer_tokenize(Lexer* lexer, SourceFile* source_file, TokenStream* token_stream);
+extern void lexer_tokenize(struct Lexer *self);

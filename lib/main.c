@@ -1,30 +1,41 @@
-// Copyright (c) 2026 Justin Wallace
-// main.c - Main
+// main.c - Canonical program entry point
 
-#include "driver/compiler.h"
+#include "source/source_file.h"
+#include "lexer/token.h"
 
-#include "string_table.h"
-/*
+#include "array_impl.h"
 
-local state
-	source text
-	tokens 
-	ast
-	scope
-	symbol table
-local pass
-	load source file
-	tokenization
-	parsing
-	semantic analysis
-global state
-	build options
-	type context
-
-*/
-int main(int argc, const char* argv[])
+int main(int argc, const char *argv[])
 {
-	printf("%zu\n\n", sizeof(StringTableEntry));
-
-	return compiler_run(argc, argv);
+	ASSERT(1 == 2);
+	test();
 }
+// struct IntArray
+// {
+	// DEFINE_ARRAY_HEADER(int);
+// };
+// DEFINE_ARRAY_IMPL(struct IntArray, int_array, int);
+// 
+// int main(int argc, const char *argv[])
+// {
+// 
+	// struct IntArray arr = {0};
+// 
+	// int_array_init(&arr);
+// 
+	// int_array_push_back(&arr, 50);
+	// 
+	// for (size_t i = 0; i < 14; i++) {
+		// int_array_push_back(&arr, i + 10);
+	// }
+// 
+	// ARRAY_FOR_EACH_CONST (int *, i, arr) {
+		// printf("nubmah = %d\n", *i);
+	// }
+// 
+	// int_array_free(&arr);
+// 
+	// printf("Hello, world!\n");
+// 
+	// return 0;
+// }
