@@ -20,50 +20,50 @@ typedef struct SourceCursor
 } SourceCursor;
 
 // source_cursor_init :: Initializes an instance of SourceCursor
-INLINE void source_cursor_init(SourceCursor* self, struct SourceFile* source_file)
+STATIC void source_cursor_init(SourceCursor* self, struct SourceFile* source_file)
 {
 	self->source_file = source_file;
 }
 
 // source_cursor_at :: Returns the character of SourceFile at index
-INLINE const char source_cursor_at(SourceCursor* self, size_t index)
+STATIC const char source_cursor_at(SourceCursor* self, size_t index)
 {
 	return (const char)self->source_file->contents.ptr[index];
 }
 
 // source_cursor_current :: Returns the current character of SourceFile
-INLINE const char source_cursor_current(SourceCursor* self)
+STATIC const char source_cursor_current(SourceCursor* self)
 {
 	return self->source_file->contents.ptr[self->current];
 }
 
 // source_cursor_prev :: Returns the previous character of SourceFile
-INLINE const char source_cursor_prev(SourceCursor* self)
+STATIC const char source_cursor_prev(SourceCursor* self)
 {
 	return self->source_file->contents.ptr[self->current - 1];
 }
 
 // source_cursor_peek :: Returns the following character of SourceFile
-INLINE const char source_cursor_peek(SourceCursor* self)
+STATIC const char source_cursor_peek(SourceCursor* self)
 {
 	return self->source_file->contents.ptr[self->current + 1];
 }
 
 // source_cursor_advance :: Advances the cursor
-INLINE void source_cursor_advance(SourceCursor* self)
+STATIC void source_cursor_advance(SourceCursor* self)
 {
 	self->current++;
 }
 
 // source_cursor_is :: Returns true if the current character is the same as match
-INLINE bool source_cursor_is(SourceCursor* self, const char match)
+STATIC bool source_cursor_is(SourceCursor* self, const char match)
 {
 	return ((char)self->source_file->contents.ptr[self->current] == match);
 }
 
 // source_cursor_expect :: Returns true and increments the cursor if the current character is the 
 //  same as match
-INLINE bool source_cursor_expect(SourceCursor* self, const char match)
+STATIC bool source_cursor_expect(SourceCursor* self, const char match)
 {
 	if((char)self->source_file->contents.ptr[self->current] == match) {
 		self->current++;
@@ -74,13 +74,13 @@ INLINE bool source_cursor_expect(SourceCursor* self, const char match)
 }
 
 // source_cursor_string :: Returns string pointer of SourceCursor
-INLINE const uint8_t* source_cursor_string(SourceCursor* self)
+STATIC const uint8_t* source_cursor_string(SourceCursor* self)
 {
 	return self->source_file->contents.ptr;
 }
 
 // source_cursor_string :: Returns string pointer of SourceCursor at index
-INLINE const uint8_t* source_cursor_string_at(SourceCursor* self, size_t index)
+STATIC const uint8_t* source_cursor_string_at(SourceCursor* self, size_t index)
 {
 	return &(self->source_file->contents.ptr)[index];
 }

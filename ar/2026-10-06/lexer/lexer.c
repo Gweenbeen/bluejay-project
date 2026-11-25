@@ -8,11 +8,11 @@
 
 static const char keywords[];
 static int keyword_exists(const char* start, size_t length);
-INLINE Token next_token(Lexer* self);
-INLINE Token next_symbol_or_operator(Lexer* self);
-INLINE Token next_keyword_or_identifier(Lexer* self);
-INLINE Token next_string_literal(Lexer* self);
-INLINE Token next_numeric_literal(Lexer* self);
+STATIC Token next_token(Lexer* self);
+STATIC Token next_symbol_or_operator(Lexer* self);
+STATIC Token next_keyword_or_identifier(Lexer* self);
+STATIC Token next_string_literal(Lexer* self);
+STATIC Token next_numeric_literal(Lexer* self);
 
 // next_keyword :: Tokenizes all characters in SourceFile
 extern void lexer_tokenize(Lexer* self, struct SourceFile* source_file, TokenStream* token_stream)
@@ -44,7 +44,7 @@ extern void lexer_tokenize(Lexer* self, struct SourceFile* source_file, TokenStr
 
 
 // skip_whitespace :: Advances cursor until non-whitespace character is reached
-INLINE void skip_whitespace(Lexer* self)
+STATIC void skip_whitespace(Lexer* self)
 {
 	while(isspace(source_cursor_current(&self->cursor)) || source_cursor_is(&self->cursor, '\t')) {
 		source_cursor_advance(&self->cursor);
@@ -52,7 +52,7 @@ INLINE void skip_whitespace(Lexer* self)
 }
 
 // make_token :: Token creation helper
-INLINE Token make_token(Lexer* self, TokenKind kind, size_t start)
+STATIC Token make_token(Lexer* self, TokenKind kind, size_t start)
 {
 	Token tok = {0};
 	tok.kind = kind;
@@ -63,7 +63,7 @@ INLINE Token make_token(Lexer* self, TokenKind kind, size_t start)
 }
 
 // next_keyword :: Returns the next token
-INLINE Token next_token(Lexer* self)
+STATIC Token next_token(Lexer* self)
 {
 	skip_whitespace(self);
 
@@ -102,7 +102,7 @@ end:
 }
 
 // next_symbol_or_operator :: Returns the next symbol or operator token
-INLINE Token next_symbol_or_operator(Lexer* self)
+STATIC Token next_symbol_or_operator(Lexer* self)
 {
 	TokenKind kind = TOKEN_UNKNOWN;
 	size_t start = self->cursor.current;
@@ -117,7 +117,7 @@ INLINE Token next_symbol_or_operator(Lexer* self)
 }
 
 // next_keyword :: Returns the next keyword or identifier token
-INLINE Token next_keyword_or_identifier(Lexer* self)
+STATIC Token next_keyword_or_identifier(Lexer* self)
 {
 	TokenKind kind = TOKEN_IDENTIFIER;
 	size_t start = self->cursor.current;
@@ -136,7 +136,7 @@ INLINE Token next_keyword_or_identifier(Lexer* self)
 }
 
 // next_string_literal :: Returns the next string literal token
-INLINE Token next_string_literal(Lexer* self)
+STATIC Token next_string_literal(Lexer* self)
 {
 	TokenKind kind = TOKEN_UNKNOWN;
 
@@ -158,7 +158,7 @@ INLINE Token next_string_literal(Lexer* self)
 }
 
 // next_string_literal :: Returns the next numeric literal token
-INLINE Token next_numeric_literal(Lexer* self)
+STATIC Token next_numeric_literal(Lexer* self)
 {
 	TokenKind kind = TOKEN_UNKNOWN;
 	size_t start = self->cursor.current;
@@ -204,7 +204,7 @@ static const char keywords[] =
 
 // keyword_exists :: If string exists within keywords, returns the index; returns -1 if keywords
 // doesnt contain string
-INLINE int keyword_exists(const char* start, size_t length)
+STATIC int keyword_exists(const char* start, size_t length)
 {
 	size_t index = 0;
 

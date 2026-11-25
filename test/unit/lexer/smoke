@@ -28,14 +28,14 @@ extern void lexer_tokenize(Lexer* lexer, SourceFile* source_file, TokenStream* t
 
 
 // skip_whitespace :: Advances cursor until non-whitespace character is reached
-INLINE void skip_whitespace(Lexer* lexer)
+STATIC void skip_whitespace(Lexer* lexer)
 {
 	while(isspace(source_cursor_current(&lexer->cursor)) || source_cursor_is(&lexer->cursor, '\t')) {
 		source_cursor_advance(&lexer->cursor);
 	}
 }
 
-INLINE Token make_token(Lexer* lexer, TokenKind kind, size_t start)
+STATIC Token make_token(Lexer* lexer, TokenKind kind, size_t start)
 {
 	Token tok = {0};
 	tok.kind = kind;
@@ -46,7 +46,7 @@ INLINE Token make_token(Lexer* lexer, TokenKind kind, size_t start)
 }
 
 // next_keyword :: Returns the next token
-INLINE Token next_token(Lexer* lexer)
+STATIC Token next_token(Lexer* lexer)
 {
 	skip_whitespace(lexer);
 

@@ -12,7 +12,7 @@ typedef struct Output
 	const char* string;
 } Output;
 
-INLINE void write_to_output(Output* self)
+STATIC void write_to_output(Output* self)
 {
 	FILE* f = fopen(self->name, "w");
 

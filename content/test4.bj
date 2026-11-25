@@ -1,0 +1,14 @@
+module test4;
+
+namespace module
+{
+export func add(int a, int b) -> int;
+export func sub(int a, int b) -> int;
+export func mul(int a, int b) -> int;
+export func div(int a, int b) -> int;
+
+export func add(int a, int b) -> int { return a + b; }
+export func sub(int a, int b) -> int { return a - b; }
+export func mul(int a, int b) -> int { return a * b; }
+export func div(int a, int b) -> int { return a / b; }
+}

@@ -22,4 +22,4 @@ struct SourceView
 
 #define NO_SOURCE_VIEW (struct SourceView){0}
 
-INLINE SourceView source_view_from_source(struct SourceFile* self) { return (struct SourceView){0}; }
+STATIC SourceView source_view_from_source(struct SourceFile* self) { return (struct SourceView){0}; }

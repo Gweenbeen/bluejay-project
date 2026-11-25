@@ -1,49 +1,45 @@
-// source_file.h
+// source_file.h - Source file
 
 #pragma once
 
 #include "common.h"
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
+#include <stddef.h>
 
-// SourceFile :: File contents
+// SourceFile :: Source input
 struct SourceFile
 {
-	const char *path;
-	uint64_t id;
+	const char *ptr;
+	size_t length;
+}; 
 
-	struct StringView contents;
+// SourceRange :: SourceFile range
+struct SourceRange
+{
+	const char *ptr;
+	size_t length;
 };
 
-// source_file_load :: Reads path contents into a null-terminated string
-INLINE void source_file_load(struct SourceFile *self, const char *path)
+// SourceFile :: Snapshot of SourceFile metadata
+struct SourceView
 {
-	FILE *f = fopen(path, "rb");
+	const char *ptr;
+	size_t offset;
+	size_t length;
 
-	fseek(f, 0, SEEK_END);
-	size_t length = ftell(f);
-	fseek(f, 0, SEEK_SET);
+	size_t line_start;
+	size_t line_length;
+	size_t column_start;
+	size_t column_length;
+};
 
-	char *read = malloc(length + 1);
-	fread(read, 1, length, f);
+// source_file_load :: Opens a path and reads contents into read only pointer
+extern void source_file_load(struct SourceFile *self, const char *path);
 
-	read[length] = '\0';
+// source_file_free :: Released SourceFile
+extern void source_file_free(struct SourceFile *self);
 
-	self->contents = string_view_from_cstring(read, length);
-	self->path = path;
-	self->id = fileno(f);
-
-	fclose(f);
-}
-
-// source_file_free :: Releases an instance of SourceFile
-INLINE void source_file_free(struct SourceFile *self)
+// source_ptr :: Returns pointer in SourceFile
+[[maybe_unused]] static const char *source_ptr(struct SourceFile *self)
 {
-	if (self->contents.ptr != NULL) {
-		free((void *)self->contents.ptr);
-	}
-
-	self->contents.ptr = NULL;
-	self->contents.length = 0;
+	return (const char *)self->ptr;
 }

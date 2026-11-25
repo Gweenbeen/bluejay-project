@@ -1,0 +1,47 @@
+module test3;
+
+class Buffer using {T}
+{
+	T* ptr := 0;
+	size length := 0;
+	size capacity := 0;
+
+	Buffer()
+	{ 
+		length = 0;
+		capacity = 4;
+		ptr = std::alloc(sizeof(int) * capacity);
+	}
+
+	&Buffer() { std::delete(ptr); }
+
+	func add(T item) -> void {
+		if (length >= capacity) {
+			capacity *= 2;
+
+			new_ptr = std::alloc(sizeof(int) * capacity);
+			new_ptr = std::move(ptr);
+			ptr = new_ptr;
+		}
+
+		ptr[length] = item;
+		++length;
+	}
+
+	&begin() = ptr;
+	&end() = &ptr[length];
+};
+
+func main(string[] args) -> int
+{
+	Buffer<int> numbers = {};
+	numbers.add(5);
+	numbers.add(10);
+	numbers.add(12);
+
+	for (n in numbers) {
+		std::println(fstring("number = {n}"));
+	}
+
+	return 0;
+}

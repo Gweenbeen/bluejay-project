@@ -25,7 +25,7 @@ typedef struct StringTable
 } StringTable;
 
 // string_table_init :: Initalizes an instance of StringTable
-INLINE void string_table_init(StringTable* string_table)
+STATIC void string_table_init(StringTable* string_table)
 {
 	string_table->length = 0;
 	string_table->capacity = 4;
@@ -34,7 +34,7 @@ INLINE void string_table_init(StringTable* string_table)
 }
 
 // string_table_free :: Releases an instance of StringTable
-INLINE void string_table_free(StringTable* string_table)
+STATIC void string_table_free(StringTable* string_table)
 {
 	if(string_table == NULL) {
 		return;
@@ -50,7 +50,7 @@ INLINE void string_table_free(StringTable* string_table)
 }
 
 // string_table_rehash :: Reinserts all elements in StringTable
-INLINE void string_table_rehash(StringTable* string_table)
+STATIC void string_table_rehash(StringTable* string_table)
 {
 	for(size_t i = 0; i < string_table->length; i++) {
 		//
@@ -58,7 +58,7 @@ INLINE void string_table_rehash(StringTable* string_table)
 }
 
 // string_table_rehash :: Zeroes all elements in StringTable
-INLINE void string_table_reset(StringTable* string_table)
+STATIC void string_table_reset(StringTable* string_table)
 {
 	for(size_t i = 0; i < string_table->length; i++) {
 		StringTableEntry* entry = &(string_table->entries)[i];
@@ -72,7 +72,7 @@ INLINE void string_table_reset(StringTable* string_table)
 
 // string_table_resize :: Resizes the length of StringTable. Only allocates if the new length is
 // larger than the original length
-INLINE void string_table_resize(StringTable* string_table, size_t new_length)
+STATIC void string_table_resize(StringTable* string_table, size_t new_length)
 {
 	if(new_length > string_table->length) {
 		string_table->entries = realloc(string_table->entries, new_length * sizeof(StringTableEntry));

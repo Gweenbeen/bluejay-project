@@ -4,7 +4,7 @@
 
 #include "common.h"
 
-INLINE uint64_t hash_fnv1a_impl(const uint8_t* restrict ptr, size_t length, uint64_t seed0, uint64_t seed1)
+STATIC uint64_t hash_fnv1a_impl(const uint8_t* restrict ptr, size_t length, uint64_t seed0, uint64_t seed1)
 {
 	uint64_t hash = 14695981039346656037ULL;
 
@@ -19,12 +19,12 @@ INLINE uint64_t hash_fnv1a_impl(const uint8_t* restrict ptr, size_t length, uint
 	return (hash) ? hash : 1;
 }
 
-INLINE uint64_t hash_fnv1a_from_string_view(struct StringView* self)
+STATIC uint64_t hash_fnv1a_from_string_view(struct StringView* self)
 {
 	return hash_fnv1a_impl(self->ptr, self->length, 0, 0);
 }
 
-INLINE uint64_t hash_fnv1a_from_cstring(const char* string, size_t length)
+STATIC uint64_t hash_fnv1a_from_cstring(const char* string, size_t length)
 {
 	return hash_fnv1a_impl((uint8_t*)string, length, 0, 0);
 }

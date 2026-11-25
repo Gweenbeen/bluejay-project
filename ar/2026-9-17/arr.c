@@ -27,19 +27,19 @@ typedef struct struct__\
 	size_t length;\
 	size_t capacity;\
 } struct__;\
-INLINE void name__##_init(struct__* arr) { ARRAY_INIT_IMPL(arr, sizeof(T), 4); }\
-INLINE void name__##_free(struct__* arr) { ARRAY_FREE_IMPL(arr); }\
-INLINE T* name__##_pop_back(struct__* arr) { if(arr->length == 0) return NULL; return ARRAY_AT_IMPL(arr, --arr->length); }\
+STATIC void name__##_init(struct__* arr) { ARRAY_INIT_IMPL(arr, sizeof(T), 4); }\
+STATIC void name__##_free(struct__* arr) { ARRAY_FREE_IMPL(arr); }\
+STATIC T* name__##_pop_back(struct__* arr) { if(arr->length == 0) return NULL; return ARRAY_AT_IMPL(arr, --arr->length); }\
 
 #define DEFINE_ARRAY_AT(T, struct__, name__)\
-INLINE T* name__(struct__* arr, size_t index)\
+STATIC T* name__(struct__* arr, size_t index)\
 { \
 	if(index > arr->capacity || index < 0) return NULL;\
 	return ARRAY_AT_IMPL(arr, index);\
 }\
 
 #define DEFINE_ARRAY_PUSH_BACK(T, struct__, name__)\
-INLINE void name__(struct__* arr, T* item)\
+STATIC void name__(struct__* arr, T* item)\
 {\
 	if(arr->length > arr->capacity) { ARRAY_GROW_IMPL(T, arr); }\
 	memcpy(ARRAY_AT_IMPL(arr, arr->length++), item, arr->size);\

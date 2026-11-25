@@ -1,0 +1,17 @@
+module test5;
+
+func main(string[] args) -> int
+{
+	for (size i = 0; i < 10; ++i) {
+
+	}
+
+	for (auto i in range(10)) {
+
+	}
+
+	loop (size i = 0; i < 10; ++i) { }
+	while (size i = 0; i < 10; ++i) { }
+
+	return 0;
+}

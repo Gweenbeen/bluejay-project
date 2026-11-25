@@ -1,15 +1,19 @@
-// lexer.h - Lexical analyzer
+// lexer.h - Lexical analysis
 
 #pragma once
 
-#include "token.h"
+#include "source/source_cursor.h"
 
-// Lexer :: Lexical analysis
+struct Token;
+struct TokenSream;
+struct SourceFile;
+
+// Lexer :: Tokenizes source
 struct Lexer
 {
-	struct TokenStream tokens;
-
-	size_t current;
+	struct SourceCursor cursor;
+	struct TokenStream *tokens;
 };
 
-extern void lexer_tokenize(struct Lexer *self);
+// lexer_run :: Tokenizes an input SourceFile, and populates TokenStream with Token
+extern void lexer_run(struct SourceFile *source, struct TokenStream *tokens);

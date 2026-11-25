@@ -1,96 +1,180 @@
-// array.h - Template for typed dynamic array API
+// array.h
 
 #pragma once
 
 #include "common.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stddef.h>
 
+constexpr size_t ARRAY_MAX_BUFFER_SIZE = 0;
 
-// DEFINE_ARRAY_STRUCT_IMPL :: Defines variables in struct to be used by dynamic array API
 #define DEFINE_ARRAY_HEADER(type__) \
  type__ *ptr; \
  size_t length; \
  size_t capacity; \
- uint8_t inline_memory[8]
+ alignas(max_align_t) type__ buf[ARRAY_MAX_BUFFER_SIZE]
 
-#define DEFINE_ARRAY_IMPL(array__, alias__, type__)\
- INLINE void alias__##_init(array__ *self);\
- INLINE void alias__##_free(array__ *self);\
- INLINE void alias__##_resize(array__ *self, size_t new_capacity);\
- INLINE void alias__##_reserve(array__ *self, size_t new_capacity);\
- INLINE void alias__##_place(array__ *self, type__ *item, size_t index);\
- INLINE type__ *alias__##_begin(array__ *self);\
- INLINE type__ *alias__##_end(array__ *self);\
- INLINE type__ *alias__##_at(array__ *self, size_t index);\
- INLINE const type__ *alias__##_begin_const(const array__ *self);\
- INLINE const type__ *alias__##_end_const(const array__ *self);\
- INLINE const type__ *alias__##_at_const(const array__ *self, size_t index);\
- INLINE void alias__##_clear(array__ *self);\
- INLINE void alias__##_push_back_ptr(array__ *self, type__ *item);\
- INLINE void alias__##_push_back(array__ *self, type__ item);\
- INLINE void alias__##_pop_back(array__ *self);\
- \
- INLINE void alias__##_init(array__ *self)\
- {\
- }\
- INLINE void alias__##_free(array__ *self)\
- {\
- }\
- \
- INLINE void alias__##_resize(array__ *self, size_t new_capacity)\
- {\
- }\
- \
- INLINE void alias__##_reserve(array__ *self, size_t new_capacity)\
- {\
- }\
- \
- INLINE void alias__##_place(array__ *self, type__ *item, size_t index)\
- {\
- }\
- INLINE type__ *alias__##_begin(array__ *self){ return self->ptr; }\
- INLINE type__ *alias__##_end(array__ *self) { return &(self->ptr)[self->length]; }\
- INLINE type__ *alias__##_at(array__ *self, size_t index) { return (index < self->length) ? &(self->ptr)[index] : nullptr; }\
- INLINE const type__ *alias__##_begin_const(const array__ *self) { return self->ptr;  }\
- INLINE const type__ *alias__##_end_const(const array__ *self) { return &(self->ptr)[self->length]; }\
- INLINE const type__ *alias__##_at_const(const array__ *self, size_t index) { return (index < self->length) ? &(self->ptr)[index] : nullptr; }\
- INLINE void alias__##_clear(array__ *self)\
- {\
- }\
- INLINE void alias__##_push_back_ptr(array__ *self, type__ *item)\
- {\
- }\
- INLINE void alias__##_push_back(array__ *self, type__ item)\
- {\
- }\
- INLINE void alias__##_pop_back(array__ *self)\
- {\
- }
+#define DEFINE_ARRAY_IMPL(struct__, alias__, type__)                                  			\
+ static bool alias__##_init(struct__ *self);                                          			\
+ static void alias__##_free(struct__ *self);                                          			\
+ static bool alias__##_reserve(struct__ *self, size_t new_capacity);                  			\
+ static void alias__##_clear(struct__ *self);                                         			\
+ static void alias__##_place(struct__ *self, size_t index, type__ *item);             			\
+ static type__ *alias__##_push_back_ptr(struct__ *self, type__ *item);                			\
+ static type__ *alias__##_push_back(struct__ *self, type__ item);                        		\
+ static void alias__##_pop_back(struct__ *self);                                      			\
+ static type__ *alias__##_begin(struct__ *self);                                      			\
+ static type__ *alias__##_end(struct__ *self);                                        			\
+ static type__ *alias__##_at(struct__ *self, size_t index);                           			\
+ static const type__ *alias__##_const_begin(const struct__ *self);                          			\
+ static const type__ *alias__##_const_end(const struct__ *self);                            			\
+ static const type__ *alias__##_const_at(const struct__ *self, size_t index);               			\
+																					  			\
+ static bool alias__##_init(struct__ *self)                                           			\
+ {                                                                                    			\
+	ASSERT(self != nullptr);                                                                    \
+																					  			\
+	self->length = 0;                                                                 			\
+	self->capacity = 4;                                                               			\
+																					  			\
+	self->ptr = malloc(sizeof(type__) * self->capacity);                                 		\
+																					  			\
+	if (self->ptr == nullptr) {                                                       			\
+		return false;                                                                 			\
+	}                                                                                 			\
+																					  			\
+	return true;                                                                      			\
+ }                                                                                    			\
+																					  			\
+ static void alias__##_free(struct__ *self)                                           			\
+ {                                                                                    			\
+	ASSERT(self != nullptr); 	                                                      			\
+																					  			\
+	if (self->ptr != nullptr) {                                                       			\
+		free(self->ptr);                                                              			\
+	}                                                                                 			\
+																					  			\
+	self->ptr = nullptr;                                                              			\
+	self->length = 0;                                                                 			\
+	self->capacity = 0;                                                               			\
+ }                                                                                    			\
+																					  			\
+ static bool alias__##_reserve(struct__ *self, size_t new_capacity)                   			\
+ {                                                                                    			\
+	ASSERT(self != nullptr);                                                                    \
+	ASSERT(new_capacity != 0);                                                        			\
+																					  			\
+	if (new_capacity <= self->capacity) { 														\
+		return true; 																			\
+	} 																							\
+																								\
+	type__ *new_ptr = realloc(self->ptr, sizeof(type__) * new_capacity);						\
+																					  			\
+	if (new_ptr == nullptr) {                                                          			\
+		return false;                                                                 			\
+	}                                                                                 			\
+	self->ptr = new_ptr;                                                              			\
+																					  			\
+	self->capacity = new_capacity;                                                   			\
+																					  			\
+	return true;                                                                      			\
+ }                                                                                    			\
+																					  			\
+ static void alias__##_clear(struct__ *self)                                          			\
+ {                                                                                    			\
+	ASSERT(self != nullptr);                                                                    \
+																					  			\
+	self->length = 0;                                                                 			\
+ }                                                                                    			\
+																					  			\
+ static void alias__##_place(struct__ *self, size_t index, type__ *item)              			\
+ {                                                                                    			\
+	ASSERT(self != nullptr);                                                                    \
+																					  			\
+	self->ptr[index] = *item;                                                         			\
+ }                                                                                    			\
+																					  			\
+ static type__ *alias__##_push_back_ptr(struct__ *self, type__ *item)                 			\
+ {                                                                                    			\
+	ASSERT(self != nullptr);                                                          			\
+	ASSERT(item != nullptr);                                                          			\
+																								\
+	type__ nitem = *item;                                                                		\
+																					  			\
+	if (self->length >= self->capacity) {                                             			\
+		if (!alias__##_reserve(self, self->capacity * 2)) {                                		\
+			return nullptr;                                                           			\
+		}                                                                             			\
+	}                                                                                 			\
+																					  			\
+	alias__##_place(self, self->length, &nitem);                                      			\
+	++self->length;                                                                   			\
+																					  			\
+	return &(self->ptr[self->length - 1]);                                                		\
+ }                                                                                    			\
+																					  			\
+ static type__ *alias__##_push_back(struct__ *self, type__ item)                         		\
+ {                                                                                    			\
+	ASSERT(self != nullptr);                                                          			\
+																					  			\
+	return alias__##_push_back_ptr(self, &item);                                      			\
+ }                                                                                    			\
+																					  			\
+ static void alias__##_pop_back(struct__ *self)                                       			\
+ {                                                                                    			\
+	ASSERT(self != nullptr);                                                           			\
+																					  			\
+	if (self->length > 0) {                                                           			\
+		--self->length;                                                               			\
+	}                                                                                 			\
+ }                                                                                    			\
+																					  			\
+ static type__ *alias__##_begin(struct__ *self)                                       			\
+ {                                                                                    			\
+	ASSERT(self != nullptr);                                                           			\
+																					  			\
+	return self->ptr;                                                                 			\
+ }                                                                                    			\
+																					  			\
+ static type__ *alias__##_end(struct__ *self)                                         			\
+ {                                                                                    			\
+	ASSERT(self != nullptr);                                                           			\
+																					  			\
+	return &(self->ptr[self->length]);                                                			\
+ }                                                                                    			\
+																					  			\
+ static type__ *alias__##_at(struct__ *self, size_t index)                            			\
+ {                                                                                    			\
+	ASSERT(self != nullptr);                                                           			\
+																					  			\
+	return &(self->ptr[index]);                                                       			\
+ }                                                                                    			\
+																					  			\
+ static const type__ *alias__##_const_begin(const struct__ *self)                           	\
+ {                                                                                    			\
+	ASSERT(self != nullptr);                                                           			\
+																					  			\
+	return (const type__ *)self->ptr;                                                 			\
+ }                                                                                    			\
+																					  			\
+ static const type__ *alias__##_const_end(const struct__ *self)                             	\
+ {                                                                                    			\
+	ASSERT(self != nullptr);                                                           			\
+																					  			\
+	return (const type__ *)&(self->ptr[self->length]);                                			\
+ }                                                                                    			\
+																					  			\
+ static const type__ *alias__##_const_at(const struct__ *self, size_t index)                	\
+ {                                                                                    			\
+	ASSERT(self != nullptr);                                                           			\
+																					  			\
+	return (const type__ *)&(self->ptr[index]);                                       			\
+} 
 
-// DEFINE_ARRAY_IMPL :: Defines functions for dynamic array usage 
-// * array__ = Array struct
-// * alias__ = Alternative variable name
-// * type__ = Type
-// INLINE void alias__##_init(array__ *self); 													
-// INLINE void alias__##_free(array__ *self); 													
-// [[deprecated]] INLINE void alias__##_resize(array__ *self, size_t new_length); 				
-// INLINE void alias__##_reserve(array__ *self, size_t new_capacity); 							
-// INLINE void alias__##_place(array__ *self, type__ *item, size_t index); 						
-// INLINE type__ *alias__##_begin(array__ *self); 												
-// INLINE type__ *alias__##_end(array__ *self); 													
-// INLINE type__ *alias__##_at(array__ *self, size_t index); 										
-// INLINE const type__ *alias__##_begin_const(const array__ *self); 								
-// INLINE const type__ *alias__##_end_const(const array__ *self); 								
-// INLINE const type__ *alias__##_at_const(const array__ *self, size_t index); 					
-// INLINE void alias__##_clear(array__ *self); 													
-// INLINE void alias__##_push_back_ptr(array__ *self, const type__ *item); 						
-// INLINE void alias__##_push_back_ptr(array__ *self, type__ item); 								
-// INLINE void alias__##_pop_back(array__ *self);
+#define ARRAY_FOR_EACH(type, iter, arr) \
+ for (type iter = arr.ptr; iter != &(arr.ptr[arr.length]); ++iter)
 
-
-// Iterators for non-owning arrays
-#define ARRAY_FOR_EACH(type__, iter__, array__) for (type__ iter__ = array__.ptr; iter__ != &(array__.ptr)[array__.length]; ++iter__)
-#define ARRAY_FOR_EACH_CONST(type__, iter__, array__) for (const type__ iter__ = array__.ptr; iter__ != &(array__.ptr)[array__.length]; ++iter__)
-
-// Iterators for owning arrays
-#define ARRAY_PTR_FOR_EACH(type__, iter__, array__) for (type__ iter__ = array__->ptr; iter__ != &(array__->ptr)[array__->length]; ++iter__)
-#define ARRAY_PTR_FOR_EACH_CONST(type__, iter__, array__) for (const type__ iter__ = array__->ptr; iter__ != &(array__->ptr)[array__->length]; ++iter__)
+#define ARRAY_FOR_EACH_PTR(type, iter, arr) \
+ for (type iter = arr->ptr; iter != &(arr->ptr[arr->length]); ++iter)

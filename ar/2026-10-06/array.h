@@ -52,14 +52,14 @@
  size_t capacity\
 
 #define DEFINE_ARRAY_API_IMPL(T__, struct__, name__)\
- INLINE void name__##_init(struct__* arr) { ARRAY_INIT_IMPL(T__, arr, ARRAY_INIT_CAPACITY); }\
- INLINE void name__##_free(struct__* arr) { ARRAY_FREE_IMPL(arr); }\
- INLINE T__* name__##_at(struct__* arr, size_t index) { if(index >= arr->length) { return NULL; } return ARRAY_AT_IMPL(arr, index); }\
- INLINE T__* name__##_begin(struct__* arr) { return ARRAY_BEGIN_IMPL(arr); }\
- INLINE T__* name__##_end(struct__* arr) { return ARRAY_END_IMPL(arr); }\
-  INLINE void name__##_push_back_copy(struct__* arr, T__ item) { if(arr->length >= arr->capacity) { ARRAY_GROW_IMPL(T__, arr); } arr->ptr[arr->length++] = item; }\
- INLINE void name__##_push_back(struct__* arr, const T__* restrict item) { if(arr->length >= arr->capacity) { ARRAY_GROW_IMPL(T__, arr); } arr->ptr[arr->length++] = *item; }\
- INLINE T__* name__##_pop_back(struct__* arr) { if(arr->length == 0) { return ARRAY_AT_IMPL(arr, 0); } return ARRAY_AT_IMPL(arr, --arr->length); }\
+ STATIC void name__##_init(struct__* arr) { ARRAY_INIT_IMPL(T__, arr, ARRAY_INIT_CAPACITY); }\
+ STATIC void name__##_free(struct__* arr) { ARRAY_FREE_IMPL(arr); }\
+ STATIC T__* name__##_at(struct__* arr, size_t index) { if(index >= arr->length) { return NULL; } return ARRAY_AT_IMPL(arr, index); }\
+ STATIC T__* name__##_begin(struct__* arr) { return ARRAY_BEGIN_IMPL(arr); }\
+ STATIC T__* name__##_end(struct__* arr) { return ARRAY_END_IMPL(arr); }\
+  STATIC void name__##_push_back_copy(struct__* arr, T__ item) { if(arr->length >= arr->capacity) { ARRAY_GROW_IMPL(T__, arr); } arr->ptr[arr->length++] = item; }\
+ STATIC void name__##_push_back(struct__* arr, const T__* restrict item) { if(arr->length >= arr->capacity) { ARRAY_GROW_IMPL(T__, arr); } arr->ptr[arr->length++] = *item; }\
+ STATIC T__* name__##_pop_back(struct__* arr) { if(arr->length == 0) { return ARRAY_AT_IMPL(arr, 0); } return ARRAY_AT_IMPL(arr, --arr->length); }\
 
 #define DEFINE_ARRAY(T__, struct__, name__)\
  typedef struct struct__\

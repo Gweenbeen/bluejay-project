@@ -7,16 +7,16 @@
 #include <stdio.h>
 #include <string.h>
 
-#define INLINE [[gnu::always_inline]] static inline
+#define STATIC [[gnu::always_inline]] static inline
 
 // DEFINE_CLAMP :: Create typed clamp function
-#define DEFINE_CLAMP(T, name) INLINE T clamp_##name(T n, T min, T max) { return (n > max) ? max : ((n < min) ? min : n); }
+#define DEFINE_CLAMP(T, name) STATIC T clamp_##name(T n, T min, T max) { return (n > max) ? max : ((n < min) ? min : n); }
 
 // DEFINE_MIN :: Create typed min function
-#define DEFINE_MIN(T, name) INLINE T min_##name(T a, T b) { return (a < b) ? a : b; }
+#define DEFINE_MIN(T, name) STATIC T min_##name(T a, T b) { return (a < b) ? a : b; }
 
 // DEFINE_MAX :: Create typed max function
-#define DEFINE_MAX(T, name) INLINE T max_##name(T a, T b) { return (a > b) ? a : b; }
+#define DEFINE_MAX(T, name) STATIC T max_##name(T a, T b) { return (a > b) ? a : b; }
 
 DEFINE_CLAMP(size_t, size);
 DEFINE_MIN(size_t, size);
@@ -41,17 +41,17 @@ struct StringView
 	size_t length;
 };
 
-INLINE struct StringView string_view_from_cstring(const char* string)
+STATIC struct StringView string_view_from_cstring(const char* string)
 {
 	return (struct StringView){ .ptr = (uint8_t*)string, .length = strlen(string) };
 }
 
-INLINE struct StringView string_view_from_cstring_l(const char* string, size_t length)
+STATIC struct StringView string_view_from_cstring_l(const char* string, size_t length)
 {
 	return (struct StringView){ .ptr = (uint8_t*)string, .length = length };
 }
 
-INLINE const uint8_t* string_view_to_cstring(struct StringView* self)
+STATIC const uint8_t* string_view_to_cstring(struct StringView* self)
 {
 	return self->ptr;
 }

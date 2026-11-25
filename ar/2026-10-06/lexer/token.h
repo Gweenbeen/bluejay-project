@@ -35,9 +35,9 @@ typedef struct TokenStream
 
 DEFINE_ARRAY_API_IMPL(Token, TokenStream, token_stream);
 
-INLINE Token* token_stream_current(TokenStream* self) { return token_stream_at(self, self->Cursor.current); }
-INLINE Token* token_stream_peek(TokenStream* self) { return token_stream_at(self, self->Cursor.current + 1); }
-INLINE void token_stream_advance(TokenStream* self) { self->Cursor.current++; };
-INLINE bool token_stream_is_out_of_bounds(TokenStream* self) { return self->Cursor.current >= self->length; };
-INLINE bool token_stream_expect(TokenStream* self, Token* expect) { return token_stream_at(self, self->Cursor.current) == expect; };
-INLINE bool token_stream_is(TokenStream* self, TokenKind kind) { return token_stream_at(self, self->Cursor.current)->kind == kind; };
+STATIC Token* token_stream_current(TokenStream* self) { return token_stream_at(self, self->Cursor.current); }
+STATIC Token* token_stream_peek(TokenStream* self) { return token_stream_at(self, self->Cursor.current + 1); }
+STATIC void token_stream_advance(TokenStream* self) { self->Cursor.current++; };
+STATIC bool token_stream_is_out_of_bounds(TokenStream* self) { return self->Cursor.current >= self->length; };
+STATIC bool token_stream_expect(TokenStream* self, Token* expect) { return token_stream_at(self, self->Cursor.current) == expect; };
+STATIC bool token_stream_is(TokenStream* self, TokenKind kind) { return token_stream_at(self, self->Cursor.current)->kind == kind; };

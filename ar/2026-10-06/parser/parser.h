@@ -13,4 +13,4 @@ typedef struct Parser
 	TokenStream* tokens;
 } Parser;
 
-INLINE void 
+STATIC void 

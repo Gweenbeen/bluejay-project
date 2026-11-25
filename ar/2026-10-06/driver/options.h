@@ -25,14 +25,14 @@ typedef struct OptionList
 
 DEFINE_ARRAY_API_IMPL(Option, OptionList, option_list);
 
-INLINE void option_list_from_argv(OptionList* option_list, int argc, const char* argv[])
+STATIC void option_list_from_argv(OptionList* option_list, int argc, const char* argv[])
 {
 	for(size_t i = 0; i < argc; i++) {
 		option_list_push_back(option_list, &(Option){ .string = string_view_from_cstring(argv[i], strlen(argv[i])), .value = NULL } );
 	}
 }
 
-INLINE void parse_arguments(CompilerContext* compiler_context)
+STATIC void parse_arguments(CompilerContext* compiler_context)
 {
 	// First argument is the name of the application, so we start at one
 	for(size_t i = 1; i < compiler_context->argc; i++) {

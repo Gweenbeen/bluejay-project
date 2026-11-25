@@ -1,41 +1,36 @@
 // main.c - Canonical program entry point
 
-#include "source/source_file.h"
-#include "lexer/token.h"
+#define NOASSERT
 
-#include "array_impl.h"
+#include "driver/compiler.h"
+#include "hash_map.h"
+#include <assert.h>
 
 int main(int argc, const char *argv[])
 {
-	ASSERT(1 == 2);
-	test();
+	// compiler_run(argc, argv);
+	// printf("%s\n", output_path);
+
+	struct HashMap table = {0};
+	hash_map_init(&table);
+
+	const char string[] = "hello, world!";
+	int number = 80;
+	hash_map_insert(&table, string, sizeof(string), &number);
+	hash_map_insert(&table, string, sizeof(string), &number);
+	hash_map_insert(&table, "hello", 5, &number);
+
+	for (size_t i = 0; i < table.capacity; ++i) {
+		struct HashMapEntry *e = &(table.entries[i]);
+
+		if (e->key == nullptr) {
+			printf("empty.\n");
+		} else {
+			printf("%s %d\n", table.entries[i].key, *(int *)table.entries[i].value);
+		}
+	}
+
+	hash_map_free(&table);
+
+	return 0;
 }
-// struct IntArray
-// {
-	// DEFINE_ARRAY_HEADER(int);
-// };
-// DEFINE_ARRAY_IMPL(struct IntArray, int_array, int);
-// 
-// int main(int argc, const char *argv[])
-// {
-// 
-	// struct IntArray arr = {0};
-// 
-	// int_array_init(&arr);
-// 
-	// int_array_push_back(&arr, 50);
-	// 
-	// for (size_t i = 0; i < 14; i++) {
-		// int_array_push_back(&arr, i + 10);
-	// }
-// 
-	// ARRAY_FOR_EACH_CONST (int *, i, arr) {
-		// printf("nubmah = %d\n", *i);
-	// }
-// 
-	// int_array_free(&arr);
-// 
-	// printf("Hello, world!\n");
-// 
-	// return 0;
-// }

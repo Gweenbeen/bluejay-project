@@ -14,3 +14,6 @@
 *.ilk
 *.dSYM/
 
+ar/
+bin/
+build/

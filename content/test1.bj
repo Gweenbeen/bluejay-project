@@ -1,14 +1,9 @@
 module test1;
 
-func main() -> int
+func main(string[] args) -> int
 {
 	int x := 5;
-	int y := 10;
+	int y := 12;
 
-	return x * y;
+	return x + y;
 }
-
-
-string t = s"Hello, world!";
-cstring t = c"Hello, world!";
-pstring t = p"Hello, world";

@@ -1,47 +1,73 @@
-// string.h - String API
+// stringt.h - String API
 
 #pragma once
 
-#include "common.h"
-#include <stdint.h>
-#include <stddef.h>
+#include <string.h>
 
-// String :: Owning-string. Guaranteed to be null terminated
 struct String
 {
-	const uint8_t *ptr;
-	size_t length;
-	size_t capacity;
-
-	size_t begin;
-	size_t end;
-	size_t current;
-
-	alignas(max_align_t) uint8_t inline_memory[8];
+	DEFINE_ARRAY_HEADER(char);
 };
+DEFINE_ARRAY_IMPL(struct String, string, char);
 
-INLINE void string_init(struct String *self);
-INLINE void string_free(struct String *self);
+// should this use variadic args?
+static void string_append(struct String *self, const char *string)
+{
+	string_reserve(self, strlen(string) + 1);
 
-INLINE void string_reserve(struct String *self, size_t capacity);
-INLINE void string_resize(struct String *self, size_t length);
-INLINE void string_clear(struct String *self);
+	for (size_t i = 0; i < strlen(string); ++i) {
+		string_push_back(self, string[i]);
+	}
 
-INLINE struct String string_from_cstring(const char *string);
-INLINE struct String string_from_string_view(const struct StringView *string);
-INLINE const uint8_t *string_to_cstring(const struct String *self);
-INLINE struct StringView *string_to_string_view(const struct String *self);
+	self->ptr[self->length] = '\0';
+}
 
-INLINE void string_append(struct String *self, const char *string);
-INLINE void string_append_string_view(struct String *self, struct StringView *string);
+static void string_append_with_length(struct String *self, const char *string, size_t length)
+{
+	string_reserve(self, length + 1);
 
-INLINE void string_concat(struct String *dest, struct String *src);
-INLINE void string_concat_cstring(struct String *dest, const char *src);
-INLINE void string_concat_string_view(struct String *dest, struct StringView *src);
+	for (size_t i = 0; i < length; ++i) {
+		string_push_back(self, string[i]);
+	}
 
-INLINE struct String string_slice(struct String *self, size_t start, size_t end);
-INLINE bool string_compare(struct String *dest, struct String *src);
-INLINE bool string_equals(struct String *dest, struct String *src);
-INLINE bool string_contains(struct String *self, char c);
+	self->ptr[self->length] = '\0';
+}
 
-size_t string_find(struct String *self, char c);
+static void string_concat(struct String *self, const char *to, const char *from)
+{
+	string_reserve(self, strlen(to) + strlen(from) + 1);
+
+	for (size_t i = 0; i < strlen(to); ++i) {
+		string_push_back(self, to[i]);
+	}
+
+	for (size_t i = 0; i < strlen(from); ++i) {
+		string_push_back(self, from[i]);
+	}
+
+	self->ptr[self->length] = '\0';
+}
+
+// void test(void) {
+	
+	// struct String string = {0};
+	// string_init(&string);
+
+	// string_append(&string, "JADIUSDJJJJJLAKDJSLADJIOPADJPASDJIOWEJDUIJWEPODJWEIDJLLKASJDKLWEUPJIODJJSKLDADOPIJASKDpajksdioaj");
+
+	// string_concat(&string, "Hello, ", "world!");
+
+	// string_append(&string, "JADIUSDJJJJJLAKDJSLADJIOPADJPASDJIOWEJDUIJWEPODJWEIDJLLKASJDKLWEUPJIODJJSKLDADOPIJASKDpajksdioaj");
+	// string_append(&string, "JADIUSDJJJJJLAKDJSLADJIOPADJPASDJIOWEJDUIJWEPODJWEIDJLLKASJDKLWEUPJIODJJSKLDADOPIJASKDpajksdioajYYAYHAEHA");
+	// string_concat(&string, "STIRTING, ", "ADKSLADJASKA!");
+
+	// for (size_t i = 0; i < 999; ++i) {
+		// string_append(&string, "JADIUSDJJJJJLAKDJSLADJIOPADJPASDJIOWEJDUIJWEPODJWEIDJLLKASJDKLWEUPJIODJJSKLDADOPIJASKDpajksdioaj");
+	// }
+
+	// printf("total mem usage = %zu\n", sizeof(char) * string.capacity);
+
+	// printf("%s\n", string.ptr);
+
+	// string_free(&string);
+// }

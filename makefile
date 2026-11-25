@@ -9,15 +9,16 @@ CFLAGS := \
 	-std=c23 \
 	-I lib
 
-LIB := \
+SRC := \
 	lib/main.c \
-# 	lib/driver/compiler.c \
-# 	lib/source/source_file.c \
-# 	lib/lexer/lexer.c 
-	
+	lib/source/source_file.c \
+	lib/lexer/lexer.c \
+	lib/ast/ast.c \
+	lib/bump_arena.c 
+
 
 BUILD := \
-	$(patsubst lib/%.c, build/%.o, $(LIB))
+	$(patsubst lib/%.c, build/%.o, $(SRC))
 
 TARGET := \
 	bin/bjcc.exe

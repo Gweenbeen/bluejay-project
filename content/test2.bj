@@ -1,19 +1,7 @@
 module test2;
 
-func add(int a, int b) -> int
+func main(string[] args) -> int
 {
-	return a + b;
+	std::println(fstring("Hello, world!"));
+	return 0;
 }
-
-func sub(int a, int b) -> int
-{
-	return a - b;
-}
-
-class Array<T>
-{
-	//
-}
-
-void Array::push(T& item);
-T& Array::pop(size index);

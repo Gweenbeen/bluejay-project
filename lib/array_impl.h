@@ -1,247 +1,160 @@
-// array_impl.h - 
+// array.h
+
+#pragma once
 
 #include "common.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include <stddef.h>
-#include <string.h>
 
-struct Array
+struct IntArray
 {
 	int *ptr;
 	size_t length;
 	size_t capacity;
-	alignas(max_align_t) uint8_t inline_memory[8];
+	alignas(max_align_t) uint8_t buf[sizeof(int) * 2];
 };
 
-INLINE bool array_init(struct Array *self);
-INLINE void array_free(struct Array *self);
-INLINE bool array_reserve(struct Array *self, size_t new_capacity);
-INLINE void array_resize(struct Array *self, size_t new_length);
-INLINE void array_place(struct Array *self, int *item, size_t index);
-INLINE int *array_begin(struct Array *self);
-INLINE int *array_end(struct Array *self);
-INLINE int *array_at(struct Array *self, size_t index);
-INLINE const int *array_begin_const(const struct Array *self);
-INLINE const int *array_end_const(const struct Array *self);
-INLINE const int *array_at_const(const struct Array *self, size_t index);
-INLINE void array_clear(struct Array *self);
-INLINE void array_push_back_obj(struct Array *self, int *item);
-INLINE void array_push_back(struct Array *self, int item);
-INLINE void array_pop_back(struct Array *self);
-
-INLINE bool array_init(struct Array *self)
+[[deprecated]] static bool int_array_init(struct IntArray *self)
 {
-	ASSERT(self != nullptr);
-
-	self->ptr = (int *)self->inline_memory;
+	ASSERT(self);
 
 	self->length = 0;
-	self->capacity = sizeof(self->inline_memory) / sizeof(int);
+	self->capacity = 4;
 
-	if (self->capacity == 0) {
-		self->capacity = 4;
+	self->ptr = malloc(sizeof(int) * self->capacity);
 
-		self->ptr = malloc(self->capacity * sizeof(int));
-		if (self->ptr == nullptr) {
-			goto fail;
-		}
+	if (self->ptr != nullptr) {
+		return false;
 	}
 
 	return true;
-
-fail:
-	
-	array_free(self);
-	return false;
 }
 
-INLINE void array_free(struct Array *self)
+[[deprecated]] static void int_array_free(struct IntArray *self)
 {
-	ASSERT(self != nullptr);
+	ASSERT(self);
 
-	if (self->ptr != nullptr && self->ptr != (int *)self->inline_memory) {
+	if (self->ptr != nullptr) {
 		free(self->ptr);
 	}
 
 	self->ptr = nullptr;
 	self->length = 0;
-	self->capacity = 0;
+	self->capacity = 0;	
 }
 
-INLINE bool array_reserve(struct Array *self, size_t new_capacity)
+[[deprecated]] static bool int_array_reserve(struct IntArray *self, size_t new_capacity)
 {
-	ASSERT(self != nullptr);
+	ASSERT(self);
+	ASSERT(new_capacity != 0);
 
-	if (new_capacity <= self->capacity) {
+	int *new_ptr = realloc(self->ptr, sizeof(int) * (self->capacity + new_capacity));
+
+	if (new_ptr == nullptr) {
 		return false;
 	}
-
-	if (self->ptr == (int *)self->inline_memory) {
-		self->ptr = malloc(new_capacity * sizeof(int));
-
-		memcpy(self->ptr, (int *)self->inline_memory, self->capacity * sizeof(int));
-	} else {
-		int *new_ptr = realloc(self->ptr, new_capacity * sizeof(int));
-
-		if (new_ptr == nullptr) {
-			free(new_ptr);
-			goto fail;
-		}
-		self->ptr = new_ptr;
-	}
-
-	self->capacity = new_capacity;
+	self->ptr = new_ptr;
+	
+	self->capacity += new_capacity;
 
 	return true;
-
-fail:
-
-	array_free(self);
-	return false;
 }
 
-INLINE void array_resize(struct Array *self, size_t new_length)
+[[deprecated]] static void int_array_clear(struct IntArray *self)
 {
-	ASSERT(self != nullptr);
-
-	if (new_length > self->capacity) {
-		array_reserve(self, new_length);	
-	}
-
-	self->length = new_length;
-
-	return;
-
-fail:
-	
-	array_free(self);
-}
-
-INLINE void array_place(struct Array *self, int *item, size_t index)
-{
-	ASSERT(self != nullptr);
-
-	self->ptr[index] = *item;
-}
-
-INLINE int *array_begin(struct Array *self)
-{
-	ASSERT(self != nullptr);
-
-	return self->ptr;
-}
-
-INLINE int *array_end(struct Array *self)
-{
-	ASSERT(self != nullptr);
-
-	return &(self->ptr)[self->length];
-}
-
-INLINE int *array_at(struct Array *self, size_t index)
-{
-	ASSERT(self != nullptr);
-
-	if (index >= self->length) {
-		return nullptr;
-	}
-
-	return &(self->ptr)[index];
-}
-
-INLINE const int *array_begin_const(const struct Array *self)
-{
-	ASSERT(self != nullptr);
-
-	return self->ptr;
-}
-
-INLINE const int *array_end_const(const struct Array *self)
-{
-	ASSERT(self != nullptr);
-
-	return &(self->ptr)[self->length];
-}
-
-INLINE const int *array_at_const(const struct Array *self, size_t index)
-{
-	ASSERT(self != nullptr);
-
-	if(index >= self->length) {
-		return nullptr;
-	}
-
-	return &(self->ptr)[index];
-}
-
-INLINE void array_clear(struct Array *self)
-{
-	ASSERT(self != nullptr);
+	ASSERT(self);
 
 	self->length = 0;
 }
 
-INLINE void array_push_back_obj(struct Array *self, int *item)
+[[deprecated]] static void int_array_place(struct IntArray *self, size_t index, int *item)
+{
+	ASSERT(self);
+
+	self->ptr[index] = *item;
+}
+
+[[deprecated]] static int *int_array_push_back_ptr(struct IntArray *self, int *item)
 {
 	ASSERT(self != nullptr);
+	ASSERT(item != nullptr);
 
-	if (item == nullptr) {
-		return;
-	}
-
-	int new_item = *item;
+	// Undefined behavior if array pointer is passed as an argument; must redeclare as local 
+	// variable, before potential realloc
+	int nitem = *item; 
 
 	if (self->length >= self->capacity) {
-		array_reserve(self, self->capacity * 2);
+		if (!int_array_reserve(self, self->capacity)) {
+			return nullptr;
+		}
 	}
 
-	array_place(self, &new_item, self->length);
+	int_array_place(self, self->length, &nitem);
 	++self->length;
+
+	return &(self->ptr[self->length]);
 }
 
-INLINE void array_push_back(struct Array *self, int item)
+[[deprecated]] static int *int_array_push_back(struct IntArray *self, int item)
 {
 	ASSERT(self != nullptr);
 
-	array_push_back_obj(self, &item);
+	return int_array_push_back_ptr(self, &item);
 }
 
-INLINE void array_pop_back(struct Array *self)
+[[deprecated]] static void int_array_pop_back(struct IntArray *self)
 {
-	ASSERT(self != nullptr);
+	ASSERT(self);
 
-	if (self->length == 0) {
-		return;
+	if (self->length > 0) {
+		--self->length;
 	}
-
-	--self->length;
 }
 
-#define FOR_EACH(T, i, arr) for (T i = array_begin(arr); i != array_end(arr); ++i)
-#define FOR_EACH_CONST(T, i, arr) for (const T i = array_begin_const(arr); i != array_end_const(arr); ++i)
-
-void test()
+[[deprecated]] static int *int_array_begin(struct IntArray *self)
 {
-	struct Array arr = {0};
-	array_init(&arr);
+	ASSERT(self);
 
-	array_push_back(&arr, 5);
-	array_push_back(&arr, 10);
-	array_push_back(&arr, 15);
-	array_push_back(&arr, 20);
-	array_push_back(&arr, 25);
-	array_push_back(&arr, 30);
-	array_push_back(&arr, 35);
-	array_push_back(&arr, 40);
-	array_push_back(&arr, 45);
-	array_push_back(&arr, 50);
-
-	FOR_EACH (int *, i, &arr) {
-		*i += 5;
-	}
-
-	FOR_EACH_CONST (int *, i, &arr) {
-		printf("number %d\n", *i);
-	}
-
-	array_free(&arr);
+	return self->ptr;
 }
+
+[[deprecated]] static int *int_array_end(struct IntArray *self)
+{
+	ASSERT(self);
+
+	return &(self->ptr[self->length]);
+}
+
+[[deprecated]] static int *int_array_at(struct IntArray *self, size_t index)
+{
+	ASSERT(self);
+
+	return &(self->ptr[index]);
+}
+
+[[deprecated]] static const int *int_array_const_begin(struct IntArray *self)
+{
+	ASSERT(self);
+
+	return (const int *)self->ptr;
+}
+
+[[deprecated]] static const int *int_array_const_end(struct IntArray *self)
+{
+	ASSERT(self);
+
+	return (const int *)&(self->ptr[self->length]);
+}
+
+[[deprecated]] static const int *int_array_const_at(struct IntArray *self, size_t index)
+{
+	ASSERT(self);
+
+	return (const int *)&(self->ptr[index]);
+}
+
+#define ARRAY_FOR_EACH(type, iter, arr) for (type iter = arr.ptr; iter != &(arr.ptr[arr.length]); ++iter)
+
+#define ARRAY_FOR_EACH_PTR(type, iter, arr) for (type iter = arr->ptr, iter != &(arr->ptr[arr->length]); ++iter)
