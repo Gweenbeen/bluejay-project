@@ -17,14 +17,16 @@ struct CompilerContext
 	struct ModuleArray modules;
 };
 
-void compiler_run(int argc, const char *argv[])
+
+static void compiler_run(int argc, const char *argv[])
 {
-	struct CompilerContext self = {};
+	struct CompilerContext self = {0};
 	module_array_init(&self.modules);
 
 	options_parse(&self.options, &self.modules, argc, argv);
 
-	ARRAY_FOR_EACH (struct Module *, i, self.modules) {
+	ARRAY_FOR_EACH (struct Module *, i, self.modules)
+	{
 		printf("\tcompiling a unit...\n");
 
 		source_file_load(&i->source, i->input_path);
@@ -37,10 +39,32 @@ void compiler_run(int argc, const char *argv[])
 
 		parser_run(&i->ast, nullptr, &i->tokens);
 
-		ast_node_print_tree(i->ast.root, 0);
+		// ast_node_print_tree(i->ast.root, 0);
 
 		printf("\tdone!\n");
 	}
+	
+	struct ASTContext context = {0};
+	ast_context_init(&context);
+
+	struct ASTNodeBuffer temp = {0};
+	ast_node_buffer_init(&temp);
+
+	ast_node_buffer_push_back(&temp, ast_node_make(&context, 30));
+	ast_node_buffer_push_back(&temp, ast_node_make(&context, 35));
+	ast_node_buffer_push_back(&temp, ast_node_make(&context, 40));
+	ast_node_buffer_push_back(&temp, ast_node_make(&context, 45));
+	ast_node_buffer_push_back(&temp, ast_node_make(&context, 50));
+
+	struct ASTNodeList nodes = ast_node_list_make(&context, &temp);
+
+	ast_node_buffer_free(&temp);
+	
+	ast_context_free(&context);
+
+	printf("success!!!");
+
+
 
 	struct String write = {0};
 	string_init(&write);
@@ -49,10 +73,17 @@ void compiler_run(int argc, const char *argv[])
 	string_append(&write, self.options.output_path);
 	string_append(&write, "\n\n");
 	
-	ARRAY_FOR_EACH (struct Module *, i, self.modules) {
-		string_append(&write, "Outputting file...\n\n");
+	ARRAY_FOR_EACH (struct Module *, i, self.modules)
+	{
+		string_append(&write, "Outputting a very cool file from \"");
+		string_append(&write, i->input_path);
+		string_append(&write, "\"...\n\n");
 
-		string_append_with_length(&write, i->source.ptr, i->source.length);
+		ARRAY_FOR_EACH (struct Token *, t, i->tokens) {
+			string_append(&write, "token: ");
+			string_append_with_length(&write, (const char *)t->source.ptr, t->source.length);
+			string_append(&write, "\n");
+		}
 	}
 
 	FILE *out = fopen(self.options.output_path, "w+");
@@ -61,7 +92,8 @@ void compiler_run(int argc, const char *argv[])
 
 	string_free(&write);
 
-	ARRAY_FOR_EACH (struct Module *, i, self.modules) {
+	ARRAY_FOR_EACH (struct Module *, i, self.modules) 
+	{
 		printf("\tcleanup\n");
 
 		ast_context_free(&i->ast);

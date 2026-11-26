@@ -5,4 +5,6 @@
 struct Emit
 {
 	struct String write;
+
+	const char *output_path;
 };

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "array.h"
+#include "common.h"
 
 // TokenKind :: All token types
 enum TokenKind
@@ -24,7 +25,7 @@ enum TokenKind
 struct Token
 {
 	enum TokenKind kind;
-	struct SourceView source;
+	struct StringView source;
 };
 
 // Token :: Array of Token to be used for Parsing
@@ -90,7 +91,7 @@ static bool token_stream_expect(struct TokenStream *self, enum TokenKind kind)
 	printf("token %03d = %.*s\n", 
 		tok->kind,
 		(int)tok->source.length, 
-		&(tok->source.ptr[tok->source.offset])
+		tok->source.ptr
 	);
 }
 

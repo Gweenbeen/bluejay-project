@@ -32,5 +32,6 @@ static void parser_run(struct ASTContext *ast, struct ScopeContext *scope, struc
 
 static struct ASTNode *parse_program(struct Parser *parser)
 {
-	return ast_node_make(parser->ast, AST_UNKNOWN);
+	// return ast_node_make(parser->ast, AST_UNKNOWN);
+	return nullptr;
 }

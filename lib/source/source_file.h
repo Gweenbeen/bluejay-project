@@ -43,3 +43,4 @@ extern void source_file_free(struct SourceFile *self);
 {
 	return (const char *)self->ptr;
 }
+

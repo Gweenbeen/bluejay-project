@@ -47,3 +47,6 @@ extern void bump_arena_push_block(struct BumpArena *self);
 
 // bump_arena_alloc :: Returns bytes from the current BumpArenaBlock
 extern void *bump_arena_alloc(struct BumpArena *self, size_t bytes);
+
+#define DEFINE_BUMP_ARENA_HEADER(type__)
+#define DEFINE_BUMP_ARENA_IMPL(struct__, alias__, type__)

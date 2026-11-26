@@ -47,7 +47,10 @@ extern void bump_arena_block_add(struct BumpArenaBlock *to, struct BumpArenaBloc
 extern void *bump_arena_block_alloc(struct BumpArenaBlock *self, size_t bytes)
 {
 	ASSERT(self != nullptr);
-	ASSERT(bytes != 0);
+
+	if (bytes == 0) {
+		return nullptr;
+	}
 
 	const uint8_t *ptr = &(self->ptr)[self->used];
 
@@ -97,7 +100,10 @@ extern void bump_arena_push_block(struct BumpArena *self)
 extern void *bump_arena_alloc(struct BumpArena *self, size_t bytes)
 {
 	ASSERT(self != nullptr);
-	ASSERT(bytes != 0);
+
+	if (bytes == 0) {
+		return nullptr;
+	}
 
 	if (self->tail == nullptr) {
 		self->tail = bump_arena_block_make(self->initial_capacity);

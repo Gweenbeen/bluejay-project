@@ -116,3 +116,17 @@ static bool source_cursor_expect(struct SourceCursor *self, char c)
 {
 	return (const char *)self->source->ptr;
 }
+
+
+[[maybe_unused]] static struct SourceView source_view_make(struct SourceCursor *cursor, size_t start)
+{
+	return (struct SourceView){
+		.ptr = cursor->source->ptr ,
+		.offset = start,
+		.length = cursor->current - start,
+		.line_start = 0,
+		.line_length = 0,
+		.column_start = 0,
+		.column_length = 0,
+	};
+}

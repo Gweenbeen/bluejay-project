@@ -9,6 +9,8 @@
 #include "ast/stmt.h"
 #include "ast/type.h"
 #include "bump_arena.h"
+#include "array.h"
+#include <string.h>
 
 // ASTNodeKind :: AST node type
 enum ASTNodeKind 
@@ -21,7 +23,6 @@ enum ASTNodeKind
 struct ASTNode
 {
 	enum ASTNodeKind kind;
-
 	union
 	{
 		struct Program program;
@@ -40,10 +41,15 @@ struct ASTNode
 		struct InitializerList initializer_list;
 		struct GenericArgument generic_argument;
 		struct GenericArgumentList generic_argument_list;
+		struct Modifier modifier;
+		struct Qualifier qualifier;
+		struct Designator designator;
+		struct Field field;
 
 		struct DeclModule decl_module;
 		struct DeclImport decl_import;
 		struct DeclExport decl_export;
+		struct DeclBlock decl_block;
 		struct DeclFunction decl_function;
 		struct DeclFunctionProto decl_function_proto;
 		struct DeclEnum decl_enum;
@@ -75,7 +81,7 @@ struct ASTNode
 		struct ExprTypeof expr_typeof;
 		struct ExprLength expr_length;
 		struct ExprReserve expr_reserve;
-		struct ExprDestroy expr_destroy;
+		struct ExprDelete expr_delete;
 
 		struct StmtBlock stmt_block;
 		struct StmtDecl stmt_decl;
@@ -95,7 +101,12 @@ struct ASTNode
 		struct StmtGoto stmt_goto;
 		struct StmtIndirectGoto stmt_indirect_goto;
 		struct StmtLabel stmt_label;
+		struct StmtBuiltinLabel stmt_builtin_label;
 		struct StmtAssert stmt_assert;
+		struct StmtAssertMessage stmt_assert_message;
+		struct StmtAssert stmt_static_assert;
+		struct StmtStaticAssertMessage stmt_static_assert_message;
+		struct StmtAssert stmt_assume;
 
 		struct TypeBuiltin type_builtin;
 		struct TypeUserDefined type_user_defined;
@@ -107,13 +118,22 @@ struct ASTNode
 	};
 };
 
-// ASTContext :: Tracks AST
+// ASTContext :: Contains AST
 struct ASTContext
 {
 	struct BumpArena arena;
 
 	struct ASTNode *root;
 };
+
+// ASTNodeBuffer :: Temporary array of ASTNode
+struct ASTNodeBuffer
+{
+	DEFINE_ARRAY_HEADER(struct ASTNode *);
+};
+DEFINE_ARRAY_IMPL(struct ASTNodeBuffer, ast_node_buffer, struct ASTNode *);
+
+
 
 extern void ast_context_init(struct ASTContext *self);
 extern void ast_context_free(struct ASTContext *self);
@@ -139,15 +159,6 @@ static void ast_node_print_tree(struct ASTNode *self, size_t depth)
 	}
 }
 
-static struct ASTNode *ast_node_make(struct ASTContext *context, enum ASTNodeKind kind)
-{
-	struct ASTNode *node = bump_arena_alloc(&context->arena, sizeof(struct ASTNode));
-
-	node->kind = kind;
-
-	return node;
-}
-
 extern struct ASTNode *ast_node_make_program(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_identifier(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_path(struct ASTContext *context);
@@ -164,9 +175,14 @@ extern struct ASTNode *ast_node_make_initializer_index(struct ASTContext *contex
 extern struct ASTNode *ast_node_make_initializer_list(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_generic_argument(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_generic_argument_list(struct ASTContext *context);
+extern struct ASTNode *ast_node_make_modifier(struct ASTContext *context);
+extern struct ASTNode *ast_node_make_qualifier(struct ASTContext *context);
+extern struct ASTNode *ast_node_make_designator(struct ASTContext *context);
+extern struct ASTNode *ast_node_make_field(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_decl_module(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_decl_import(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_decl_export(struct ASTContext *context);
+extern struct ASTNode *ast_node_make_decl_block(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_decl_function(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_decl_function_proto(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_decl_enum(struct ASTContext *context);
@@ -197,7 +213,7 @@ extern struct ASTNode *ast_node_make_expr_sizeof(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_expr_typeof(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_expr_length(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_expr_reserve(struct ASTContext *context);
-extern struct ASTNode *ast_node_make_expr_destroy(struct ASTContext *context);
+extern struct ASTNode *ast_node_make_expr_delete(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_stmt_block(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_stmt_decl(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_stmt_expr(struct ASTContext *context);
@@ -216,8 +232,12 @@ extern struct ASTNode *ast_node_make_stmt_continue(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_stmt_goto(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_stmt_indirect_goto(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_stmt_label(struct ASTContext *context);
-extern struct ASTNode *ast_node_make_stmt_assume(struct ASTContext *context);
+extern struct ASTNode *ast_node_make_stmt_builtin_label(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_stmt_assert(struct ASTContext *context);
+extern struct ASTNode *ast_node_make_stmt_assert_message(struct ASTContext *context);
+extern struct ASTNode *ast_node_make_stmt_static_assert(struct ASTContext *context);
+extern struct ASTNode *ast_node_make_stmt_static_assert_message(struct ASTContext *context);
+extern struct ASTNode *ast_node_make_stmt_assume(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_type_builtin(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_type_user_defined(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_type_array(struct ASTContext *context);
@@ -225,3 +245,48 @@ extern struct ASTNode *ast_node_make_type_pointer(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_type_reference(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_type_function(struct ASTContext *context);
 extern struct ASTNode *ast_node_make_type_function_proto(struct ASTContext *context);
+
+[[maybe_unused]] static struct ASTNode *ast_node_make(struct ASTContext *context, enum ASTNodeKind kind)
+{
+	struct ASTNode *node = bump_arena_alloc(&context->arena, sizeof(struct ASTNode));
+
+	node->kind = kind;
+
+	return node;
+}
+
+
+static struct ASTNodeList ast_node_list_make(struct ASTContext *context, struct ASTNodeBuffer *buffer)
+{
+	ARRAY_FOR_EACH_PTR (struct ASTNode **, i, buffer) {
+		printf("node! %d ", (*i)->kind);
+	}
+	
+	struct ASTNodeList self = {
+		self.ptr = bump_arena_alloc(&context->arena, sizeof(struct ASTNode *) * buffer->length),
+		self.length = buffer->length,
+	};
+
+	memcpy(self.ptr, buffer->ptr, sizeof(struct ASTNode *) * buffer->length);
+
+	ARRAY_FOR_EACH (struct ASTNode **, i, self) {
+		printf("node! %d ", (*i)->kind);
+	}
+
+	return self;
+}
+
+// static struct ASTNodeList ast_node_list_make(struct ASTNodeBuffer *buffer, struct BumpArena *arena)
+// {
+	// ARRAY_FOR_EACH (struct ASTNode **, i, nodes) {
+		// printf("node! %d ", (*i)->number);
+	// }
+	// struct ASTNodeList self = {
+		// .ptr = bump_arena_alloc(arena, sizeof(struct ASTNode) * buffer->length),
+		// .length = buffer->length,
+	// };
+// 
+	// memcpy(self.ptr, buffer->ptr, sizeof(struct ASTNode) * buffer->length);
+// 
+	// return self;
+// }
